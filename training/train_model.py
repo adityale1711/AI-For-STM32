@@ -20,3 +20,5 @@ class TrainModel:
             log_to_file(self.output_dir, f"Model File: {user_config.general.get('model_path')}")
         elif user_config.training.get('resume_training_from'):
             log_to_file(self.output_dir, f"Resuming training from: {user_config.training.get('resume_training_from')}")
+
+        model = ModelManagement().load_model_for_training()
