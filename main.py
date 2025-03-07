@@ -13,7 +13,7 @@ from common.utils.logs_utils import mlflow_init, log_to_file
 class STM32AI:
     def __init__(self, output_dir, operation_mode):
         self.output_dir = output_dir
-        self.operation_mode = user_config.operation_modes[operation_mode]
+        self.operation_mode = user_config.operation_modes.get(operation_mode)
 
     @staticmethod
     def parse_arguments():
@@ -31,8 +31,8 @@ class STM32AI:
         return args
 
     def run(self):
-        if user_config.gpu_memory_limit is not None:
-            set_gpu_memory_limit(user_config.gpu_memory_limit)
+        if user_config.general.get('gpu_memory_limit'):
+            set_gpu_memory_limit(user_config.general.get('gpu_memory_limit'))
         else:
             print(
                 '[WARNING] The usable GPU memory is unlimited\n'
@@ -45,10 +45,10 @@ class STM32AI:
             os.makedirs(self.output_dir)
 
         # Initialize MLFlow Tracking
-        mlflow_init(user_config.project_name, user_config.mlflow_uri, self.operation_mode)
+        mlflow_init(user_config.general.get('project_name'), user_config.mlflow.get('uri'), self.operation_mode)
 
         # Random seed generator
-        seed = get_random_seed(user_config.global_seed)
+        seed = get_random_seed(user_config.general.get('global_seed'))
 
         print(f'[INFO] The random seed for this simulation is {seed}')
         if seed is not None:
@@ -56,7 +56,7 @@ class STM32AI:
 
         mode = self.operation_mode
 
-        mlflow.log_param('model_path', user_config.model_path)
+        mlflow.log_param('model_path', user_config.general.get('model_path'))
         log_to_file(self.output_dir, f'operation_mode: {mode}')
 
         if mode == 'training':
