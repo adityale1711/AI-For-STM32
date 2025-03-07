@@ -4,6 +4,7 @@ import argparse
 import tensorflow as tf
 
 from config import user_config
+from training.train_model import TrainModel
 from common.utils.cfg_utils import get_random_seed
 from common.utils.gpu_utils import set_gpu_memory_limit
 from common.utils.logs_utils import mlflow_init, log_to_file
@@ -49,17 +50,17 @@ class STM32AI:
         # Random seed generator
         seed = get_random_seed(user_config.global_seed)
 
-        print(f'[INFO]: The random seed for this simulation is {seed}')
+        print(f'[INFO] The random seed for this simulation is {seed}')
         if seed is not None:
             tf.keras.utils.set_random_seed(seed)
 
         mode = self.operation_mode
-        model_path = self.output_dir + 'models'
 
-        mlflow.log_param('model_path', model_path)
+        mlflow.log_param('model_path', user_config.model_path)
         log_to_file(self.output_dir, f'operation_mode: {mode}')
 
         if mode == 'training':
+            TrainModel(self.output_dir).train()
             print('[INFO] Training Complete')
 
 
